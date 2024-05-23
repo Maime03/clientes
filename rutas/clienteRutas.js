@@ -1,6 +1,7 @@
 const express = require('express');
 const rutas = express.Router();
 const ClienteModel = require('../models/Cliente');
+const UsuarioModel = require('../models/Usuario');
 
 //endpoint 1.  Leer a todos los clientes existentes
 rutas.get('/getCliente', async (req, res) => {
@@ -11,7 +12,6 @@ rutas.get('/getCliente', async (req, res) => {
         res.status(500).json({mensaje: error.message});
     }
 });
-module.exports = rutas;
 
 //endpoint 2. Crear
 rutas.post('/crear', async (req, res) => {
@@ -20,7 +20,8 @@ rutas.post('/crear', async (req, res) => {
         apellidos: req.body.apellidos,
         telefono: req.body.telefono,
         direccion: req.body.direccion,
-        c_i: req.body.c_i
+        c_i: req.body.c_i,
+        usuario: req.body.usuario // asignar el id del usuario
     })
     try {
         const nuevaCliente = await cliente.save();
@@ -58,10 +59,10 @@ rutas.delete('/eliminar/:id',async (req, res) => {
     }
 });
 
-// - 1. Esta consulta busca todos los clientes cuyo nombre sea "Naye".
+// - 1. Esta consulta busca todos los clientes cuyo nombre sea "edwin".
 rutas.get('/busEspefifico', async (req, res) => {
     try {
-        const clientesConNombreNaye = await ClienteModel.find({ nombre: "naye" });
+        const clientesConNombreNaye = await ClienteModel.find({ nombre: "edwin" });
        res.status(200).json(clientesConNombreNaye);
     } catch(error) {
         res.status(500).json({ mensaje :  error.message})
@@ -113,3 +114,25 @@ rutas.get('/clientesOrdenadosPorNombreYApellidos', async (req, res) => {
         res.status(500).json({ mensaje: error.message });
     }
 });
+
+//REPORTES 1
+rutas.get('/clientesConEquipos', async (req, res) => {
+    try {
+        const clientesConEquipos = await ClienteModel.aggregate([
+            {
+                $lookup: {
+                    from: 'equipos',
+                    localField: 'usuario',
+                    foreignField: '_id',
+                    as: 'equipos_asignados'
+                }
+            }
+        ]);
+        res.json(clientesConEquipos);
+    } catch (error) {
+        res.status(500).json({ mensaje: error.message });
+    }
+});
+
+
+module.exports = rutas;
