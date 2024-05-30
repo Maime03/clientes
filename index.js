@@ -1,5 +1,6 @@
 //IMPORTACIONES de libs
 const express = require('express');
+const cors =require('cors');
 const mongoose = require('mongoose');
 const jwt = require('jsonwebtoken');
 const authRutas = require('./rutas/authRutas');
@@ -15,6 +16,10 @@ const equipoRutas = require('./rutas/equipoRutas');
 // CONFIGURACIONES DE environment
 const PORT = process.env.PORT || 3000;
 const MONGO_URI = process.env.MONGO_URI;
+const corsOptions = {
+    origin: ['http://localhost:4200/','http://localhost:4200/'],
+    optionsSuccessStatus: 200
+}
 
 //MANEJO DE JSON
 app.use(express.json());
@@ -41,10 +46,8 @@ const autenticar = async (req, res, next)=>{
     }
 };
 
-app.use('/auth', authRutas);
-app.use('/cliente', autenticar, clienteRutas);
-app.use('/equipo', autenticar, equipoRutas);
+//app.use('/auth', authRutas);
+//app.use('/cliente', autenticar, clienteRutas);
+//app.use('/equipo', autenticar, equipoRutas);
+app.use('/cliente', clienteRutas);
 
-
-//utilizar las rutas DE CLIENTES
-//app.use('/cliente', clienteRutas);
